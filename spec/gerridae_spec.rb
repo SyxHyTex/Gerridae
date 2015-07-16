@@ -1,5 +1,4 @@
-#Gerridae.rb test class (rspec)
-require File.expand_path(File.dirname(__FILE__) + "/spec_helper")
+require 'spec_helper'
 
 describe Gerridae do
 
@@ -15,10 +14,17 @@ describe Gerridae do
 
   context "proper IP generation 4" do
     skater.ip_generate(4)
+    expect(@uri).not_to be_empty
+    expect(@uri).to equal( %r{ ^([0-9]{1,3}\.){1,3}[0-9]$ } )
+  end
+
+  context "proper IP generation 6" do
+    skater.ip_generate(6)
+    expect(@uri).not_to be_empty
     #specify { skater.ip_generate.should_return(:int)  }
   end
 
   context "time generation" do
     skater.create_time
-    #specify { skater.create_time.should_return(:string) }
+    specify { skater.create_time.should_return(:string) }
 end

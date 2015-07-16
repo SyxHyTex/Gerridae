@@ -1,0 +1,10 @@
+#Git Ignore
+
+Gemfile.lock
+lib/bundler/man
+test/tmp
+test/version_tmp
+
+#For those who use IntelliJ RubyMine or related software.
+\.idea
+\.idea/**
