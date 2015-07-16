@@ -17,4 +17,8 @@ describe Gerridae do
     skater.ip_generate(4)
     #specify { skater.ip_generate.should_return(:int)  }
   end
+
+  context "time generation" do
+    skater.create_time
+    #specify { skater.create_time.should_return(:string) }
 end
