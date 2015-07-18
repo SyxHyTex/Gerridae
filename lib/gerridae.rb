@@ -57,11 +57,11 @@ class Gerridae
   # Takes the current time, and returns it in string format, for easier file naming and database logging purposes.
   def parse_time
     now = Time.now
-    cur_time = now.year + '_' now.month + '_' +
-     now.day + '_' + now.hour + '_' + now.minute + '_' +  now.second
-    
+
+    cur_time = now.to_s[0..12] + '_' + now.to_s[14..20]
+
     cur_time.to_s
   end
 
-  private :probe, :pull_file
+  private :probe, :form_file
 end
