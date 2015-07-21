@@ -1,21 +1,22 @@
-#Main file responsible for loading other dependencies.
 require 'net/http'
-require 'uri'
 
 class Gerridae
 
-  @@swarm_count = 0
+  @@gerridae_count = 0
   NULL_IP = '0.0.0.0'
   IP_CONCATENATOR = '.'
-  attr_accessor :file, :url 
+
+  attr_accessor :file, :url, :file, :content 
 
   def initialize
     @file = nil
+    @has_content = 0 
     @uri = NULL_IP
-    @@swarm_count += 1
+
+    @@gerridae_count += 1
     #TODO: Allow IP version to be changeable based on execution
 
-    @content = ""
+    @content = Hash.new
   end 
 
 
@@ -27,7 +28,7 @@ class Gerridae
 
     ip_v_num.times do 
       address += rand(1..255).to_s 
-      address += IP_CONCATENATOR unless address.count('.') == (ip_v_num - 1)
+      address += IP_CONCATENATOR unless address.count(IP_CONCATENATOR) == (ip_v_num - 1)
     end
  
     @uri = address
@@ -36,20 +37,33 @@ class Gerridae
   #checks to see if the randomly generated IP is linked to a valid web domain. 
   def probe(url)
     uri = URI.parse(url)
-   # throw ArgumentError, "Argument isn't a valid URL." unless uri
+    raise ArgumentError, "Argument #{uri} isn't a valid URL." unless uri.is_a? URI
 
     #Create NET::HTTP request to the specified IP
-    response = Net::HTTP.get_print(uri)
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.open_timeout = 3
+    http.read_timeout = 3
+      
+    #begin
+      request = Net::HTTP::Get.new(uri.request_uri)
+      request['User-Agent'] = "Gerridae Gem"
+      request['Accept'] = "*/*"
 
-    #check status of response before reading body to prevent errors and exception crashes 
-    
-    #Check response, return nil for any denials, raise exceptions for incorrect/unconvertable protocols or non-existence of URL. 
-    #TODO: Add IP and URL to database once established.
+      response = http.request(request)
+
+      if is_good_html_response? response.code  
+	response.each_header do |key, value|
+	  @content[key.to_sym] = value 
+	end
+      end
+
+      #Check response, return nil for any denials, raise exceptions for incorrect/unconvertable protocols or non-existence of URL. 
+      #TODO: Add IP and URL to database once established.
   end
   
   #Downloads the file from the given URL
   def form_file(content)
-    filename = @uri.to_s +  
+    filename = @uri.to_s + parse_time 
     f = file.new(filename, "w+")
     IO.write(filename, content)
   end 
@@ -57,11 +71,30 @@ class Gerridae
   # Takes the current time, and returns it in string format, for easier file naming and database logging purposes.
   def parse_time
     now = Time.now
-
     cur_time = now.to_s[0..12] + '_' + now.to_s[14..20]
-
     cur_time.to_s
   end
 
-  private :probe, :form_file
+  # Determines if provided HTML code is good or bad response.
+  # Params:
+  # http_code:: HTTP response code, should be of type int. 
+  def is_good_http_response?(http_code)
+    raise ArgumentError, "Code is not integer type." unless http_code.is_a? Integer 
+    raise RangeError.new "Supplied code is not in valid HTTP code index." unless http_code.between? 100, 599
+
+    #TODO: Check for non HTTP code 
+    code_type = (http_code / 100).floor
+
+    # TODO: Define specific code subcases within code_type cases.
+    case code_type
+    when 2
+      true 
+    when 1, 3..5
+      false
+    else
+      false
+    end
+
+  end
+
 end
