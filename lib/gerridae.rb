@@ -36,8 +36,10 @@ class Gerridae
 
   #checks to see if the randomly generated IP is linked to a valid web domain. 
   def probe(url)
+    raise ArgumentError.new, "Incorrect number of arguments: expected 1." if url.nil? 
+    raise TypeError.new, "Argument #{url} can't be casted to type URI`." unless url.respond_to? URI.parse(url)
+
     uri = URI.parse(url)
-    raise ArgumentError, "Argument #{uri} isn't a valid URL." unless uri.is_a? URI
 
     #Create NET::HTTP request to the specified IP
     http = Net::HTTP.new(uri.host, uri.port)
@@ -45,17 +47,17 @@ class Gerridae
     http.read_timeout = 3
       
     #begin
-      request = Net::HTTP::Get.new(uri.request_uri)
-      request['User-Agent'] = "Gerridae Gem"
-      request['Accept'] = "*/*"
+    request = Net::HTTP::Get.new(uri.request_uri)
+    request['User-Agent'] = "Gerridae Gem"
+    request['Accept'] = "*/*"
 
-      response = http.request(request)
+    response = http.request(request)
 
-      if is_good_html_response? response.code  
-	response.each_header do |key, value|
-	  @content[key.to_sym] = value 
-	end
+    if is_good_html_response? response.code  
+      response.each_header do |key, value|
+	@content[key.to_sym] = value 
       end
+    end
 
       #Check response, return nil for any denials, raise exceptions for incorrect/unconvertable protocols or non-existence of URL. 
       #TODO: Add IP and URL to database once established.
