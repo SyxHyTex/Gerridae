@@ -95,11 +95,10 @@ class Gerridae
   # Params:
   # http_code:: HTTP response code, should be of type int. 
   def is_good_http_response?(http_code)
-    #TODO: Remove exceptions.
+    #TODO: Remove exceptions, should be handled by ruby ranges during code check.
     raise ArgumentError, "Code cannot be casted to integer type." unless http_code.respond_to? :to_int 
     raise RangeError.new "Supplied code is not in valid HTTP code index." unless http_code.between? 100, 599
 
-    #TODO: Check for non HTTP code 
     code_type = (http_code / 100).floor
 
     # TODO: Define specific code subcases within code_type cases.
