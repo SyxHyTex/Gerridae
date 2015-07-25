@@ -3,6 +3,16 @@ require_relative 'spec_helper'
 describe Gerridae do
   subject(:skater) { Gerridae.new }
 
+  describe '#initialize' do
+    context 'when a Gerridae is created' do
+
+      it 'increments instance count by 1' do
+        expect{Gerridae.new}.to change(Gerridae, :count).by(1)
+      end
+    end
+  end
+
+
   describe "#ip_generate" do
     context "when IP generation occurs" do
 
@@ -40,7 +50,7 @@ describe Gerridae do
     context 'when HTTP code is tested' do
 
       it 'reports failed HTTP codes' do
-	skater.is_good_http_response?(504).should be false
+	expect(skater.is_good_http_response?(504)).to be false
       end 
 
       it 'recognizes valid HTTP codes' do
@@ -56,7 +66,7 @@ describe Gerridae do
       before('rejects_non-URI_objects') { @uri = "invalid uri" }
       
       it 'rejects non-URI objects' do
-#	expect { skater.probe(@uri) }.to raise_error TypeError
+	expect { skater.probe(@uri) }.to raise_error URI::InvalidURIError 
       end
     end
 
@@ -65,6 +75,27 @@ describe Gerridae do
 
       it 'rejects lack of URI' do
 	expect { skater.probe(@uri) }.to raise_error ArgumentError
+      end
+
+    end  
+
+    context 'when valid URI is supplied' do
+      before(:each)  { @uri = "http://www.google.com"  }
+
+      it 'expands content array by 1 or more' do
+	expect { skater.probe(@uri) }.to change{ skater.content.size }.by( a_value > 0)
+      end
+
+    end
+
+    context 'when valid response is provided' do
+      before(:each) do
+       	@uri = "http://yahoo.com"
+	skater.probe(@uri)
+      end
+      
+      it 'prevents nil header tags and elements from being written.' do
+	expect(skater.content.all?).to be_truthy
       end
 
     end
