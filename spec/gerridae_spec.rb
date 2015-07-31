@@ -32,6 +32,7 @@ describe Gerridae do
 
   describe '#parse_time' do
     context 'when time is generated' do
+
       it 'generates time as a string' do
 	skater.parse_time {should be_an_instance_of String }
       end
@@ -88,7 +89,7 @@ describe Gerridae do
 
     end
 
-    context 'when valid response is provided' do
+    context 'when valid response is passed' do
       before(:each) do
        	@uri = "http://yahoo.com"
 	skater.probe(@uri)
@@ -99,5 +100,27 @@ describe Gerridae do
       end
 
     end
+  end
+
+  describe '#form_file' do
+    context 'when valid data is passed' do
+      before do
+        uri = 'http://yahoo.com'
+      end
+
+      it 'forms appropriate file name' do
+	now = Time.now
+	filename = @uri.to_s + '_' + (now.to_s[0..9] + '_' + now.to_s[14..18]).to_s
+	skater.form_file
+	expect(@file).to eq(filename)
+      end
+
+      it 'forms valid file data' do
+        #TODO: Load pre-made HTTP response asset for test independence.
+      end
+    end
+    context 'when valid data is not passed' do
+      
+    end	
   end
 end

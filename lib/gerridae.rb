@@ -70,25 +70,33 @@ class Gerridae
       response.each do |key, value|
 	@content[key.to_sym] = value unless key.nil? && value.nil? 
       end
-     # form_file(@content)
     end
 
     #TODO: Add IP and URL to database once established.
   end
   
-  # Converts hash into human-readable txt file.
-  def form_file(content)
-    filename = @uri.to_s + parse_time 
-    f = file.new(filename, "w+")
-    IO.write(filename, content)
-
+  # Converts hash (soon JSON file) into human-readable txt file.
+  def form_file
+    #TODO: Add directory support
+    filename = @uri.to_s + '_' + parse_time 
+    f = File.new(filename, "w+")
+    #TODO: Remove or escape invalid filename chars from filename.
+    # method_call_here
+    #Check to see if file already has content.
+    if f.size
+      IO.write( filename, @content, f.size )
+    else
+      IO.write( filename, @content )
+    end
+    @file = filename 
+    filename
   end 
 
   # Takes the current time, and returns it in string format, for easier file naming and database logging purposes.
   def parse_time
     now = Time.now
-    cur_time = now.to_s[0..12] + '_' + now.to_s[14..20]
-    cur_time.to_s
+    cur_time = (now.to_s[0..9] + '_' + now.to_s[14..18]).to_s
+    cur_time
   end
 
   # Determines if provided HTML code is good or bad response.
