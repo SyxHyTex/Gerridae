@@ -115,8 +115,9 @@ describe Gerridae do
 	expect(skater.file).to eq(filename)
       end
 
-      it 'forms valid file data' do
-        #TODO: Load pre-made HTTP response asset for test independence.
+      it 'forms a file hash' do
+        content = File.open(skater.form_file) 
+        expect(content.empty?).not_to be_true
       end
     end
     context 'when valid data is not passed' do
