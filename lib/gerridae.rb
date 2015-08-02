@@ -12,7 +12,7 @@ class Gerridae
   NULL_IP = '0.0.0.0'
   IP_CONCATENATOR = '.'
 
-  attr_accessor :file, :url, :file, :content 
+  attr_accessor :file, :uri, :file, :content 
 
   def initialize
     @file = nil

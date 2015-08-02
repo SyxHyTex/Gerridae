@@ -105,14 +105,14 @@ describe Gerridae do
   describe '#form_file' do
     context 'when valid data is passed' do
       before do
-        uri = 'http://yahoo.com'
+        skater.uri = 'yahoo.com'
       end
 
       it 'forms appropriate file name' do
 	now = Time.now
 	filename = @uri.to_s + '_' + (now.to_s[0..9] + '_' + now.to_s[14..18]).to_s
 	skater.form_file
-	expect(@file).to eq(filename)
+	expect(skater.file).to eq(filename)
       end
 
       it 'forms valid file data' do
