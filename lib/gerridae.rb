@@ -76,6 +76,7 @@ class Gerridae
   end
   
   # Converts hash (soon JSON file) into human-readable txt file.
+  # return: name of file, as String object
   def form_file
     #TODO: Add directory support
     filename = @uri.to_s + '_' + parse_time 

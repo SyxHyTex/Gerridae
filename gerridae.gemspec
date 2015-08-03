@@ -8,8 +8,8 @@ Gem::Specification.new do |gem|
   gem.files             = ['lib/*.rb',
 			   'bin/*', 
 			   'spec/*' 
-			  ].to_a
-
+			   'doc/*' 
+                          ]
 
   gem.author            = 'Austin Schaefer'
   gem.email             = 'Schaefer.Austin.P@gmail.com'
