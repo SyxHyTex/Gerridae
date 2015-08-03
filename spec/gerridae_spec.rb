@@ -110,14 +110,13 @@ describe Gerridae do
 
       it 'forms appropriate file name' do
 	now = Time.now
-	filename = @uri.to_s + '_' + (now.to_s[0..9] + '_' + now.to_s[14..18]).to_s
+	filename = skater.uri.to_s + '_' + (now.to_s[0..9] + '_' + now.to_s[14..18]).to_s
 	skater.form_file
 	expect(skater.file).to eq(filename)
       end
 
       it 'forms a file hash' do
-        content = File.open(skater.form_file) 
-        expect(content.empty?).not_to be_true
+        expect(skater.content.empty?).not_to be true
       end
     end
     context 'when valid data is not passed' do
