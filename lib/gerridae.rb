@@ -78,10 +78,12 @@ class Gerridae
   # Converts hash (soon JSON file) into human-readable txt file.
   # return: name of file, as String object
   def form_file
+    raise URI::InvalidURIError, 'No URI or invalid URI supplied.' if @uri.nil? || @uri.to_s.length <= 0  
+    #TODO: Remove or escape invalid filename chars from filename.
+
     #TODO: Add directory support
     filename = @uri.to_s + '_' + parse_time 
     f = File.new(filename, "w+")
-    #TODO: Remove or escape invalid filename chars from filename.
     # method_call_here
     #Check to see if file already has content.
     if f.size

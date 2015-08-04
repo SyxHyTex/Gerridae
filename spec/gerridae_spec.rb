@@ -104,7 +104,7 @@ describe Gerridae do
 
   describe '#form_file' do
     context 'when valid data is passed' do
-      before do
+      before(:each) do
         skater.uri = 'yahoo.com'
       end
 
@@ -115,12 +115,22 @@ describe Gerridae do
 	expect(skater.file).to eq(filename)
       end
 
-      it 'forms a file hash' do
-        expect(skater.content.empty?).not_to be true
+      it 'forms a non-nil file hash' do
+        expect(skater.content.empty?).to eq false 
+        expect(skater.content.all?).to eq true 
       end
     end
     context 'when valid data is not passed' do
       
+      it 'rejects nonexistant URI' do
+        skater.uri = nil
+        expect{skater.form_file}.to raise_error(URI::InvalidURIError)  
+      end        
+
+      it 'rejects invalid URI' do
+        skater.uri = 'ksdmaspdj<F10>0Jdsdsapjdpao' 
+        expect{skater.form_file}.to raise_error(URI::InvalidURIError)  
+      end        
     end	
   end
 end
