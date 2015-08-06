@@ -2,18 +2,23 @@ require 'net/http'
 require 'uri'
 require 'json'
 
+# @author Austin Schaefer <Schaefer.Austin.P@gmail.com>
 class Gerridae
 
   @count = 0
   class << self
     attr_accessor :count
   end
-
+ 
+  # Avoids issues with initialization, allows for 
   NULL_IP = '0.0.0.0'
+  # @todo review necessity for security purposes.
   IP_CONCATENATOR = '.'
 
   attr_accessor :file, :uri, :file, :content 
 
+  # Initialized Gerridae object with major parameters set to 0 or nil values.
+  #  
   def initialize
     @file = nil
     @has_content = 0 
@@ -21,12 +26,13 @@ class Gerridae
 
     self.class.count += 1
 
-    #TODO: Allow IP version to be changeable based on execution
+    # @todo Allow IP version to be changeable based on execution
 
     @content = Hash.new
   end 
 
-
+  # Randomly seeds an IP address and assigns it to @see Gerridae::uri 
+  # @param ip_v_num [Integer] The version of IP (4 or 6) to construct.
   def ip_generate(ip_v_num)
     address = ''
     raise ArgumentError, "IP version is not an integer" unless ip_v_num.is_a? Integer
@@ -40,12 +46,14 @@ class Gerridae
     @uri = address
   end
 
-  #checks to see if the randomly generated IP is linked to a valid web domain. 
+  # checks to see if the randomly generated IP is linked to a valid web domain. 
+  # @param url [String] the url / IP address to visit
   def probe(url)
+  # @todo Create args options Hash to dynamically configure settings on the fly.
     raise ArgumentError.new, "Incorrect number of arguments: expected 1." if url.nil? 
 
     # Associate argument with @uri element tag for future logging purposes.
-    # Will also serve for faster clash checking (aka w/o DBMS)
+    #   Will also serve for faster clash checking (aka w/o DBMS)
     @uri = URI(url)
 
     #Create NET::HTTP request to the specified IP
@@ -53,7 +61,6 @@ class Gerridae
     http.open_timeout = 3
     http.read_timeout = 3
       
-    #begin
     request = Net::HTTP::Get.new(@uri)
     request['User-Agent'] = "Gerridae Gem"
     request['Accept'] = "*/*"
@@ -66,22 +73,22 @@ class Gerridae
     if is_good_http_response? code.to_i  
       @content[:http_version] = response.http_version
       @content[:message] = response.message
-      #TODO: Use JSON parsing method here
+      # @todo Use JSON parsing method here
       response.each do |key, value|
 	@content[key.to_sym] = value unless key.nil? && value.nil? 
       end
     end
 
-    #TODO: Add IP and URL to database once established.
+    # @todo Add IP and URL to database once established.
   end
   
   # Converts hash (soon JSON file) into human-readable txt file.
-  # return: name of file, as String object
+  # @return [String] name of file 
   def form_file
     raise URI::InvalidURIError, 'No URI or invalid URI supplied.' if @uri.nil? || @uri.to_s.length <= 0  
-    #TODO: Remove or escape invalid filename chars from filename.
+    # @todo Remove or escape invalid filename chars from filename.
 
-    #TODO: Add directory support
+    # @todo Add directory support
     filename = @uri.to_s + '_' + parse_time 
     f = File.new(filename, "w+")
     # method_call_here
@@ -106,14 +113,14 @@ class Gerridae
   # Params:
   # http_code:: HTTP response code, should be of type int. 
   def is_good_http_response?(http_code)
-    #TODO: Remove exceptions, should be handled by ruby ranges during code check.
+    # @todo Remove exceptions, should be handled by ruby ranges during code check.
     raise ArgumentError, "Code cannot be casted to integer type." unless http_code.respond_to? :to_int 
     raise RangeError.new "Supplied code is not in valid HTTP code index." unless http_code.between? 100, 599
 
     code_type = (http_code / 100).floor
 
-    # TODO: Define specific code subcases within code_type cases.
-    # TODO: Change checking first integer index to range checking.
+    # @todo Define specific code subcases within code_type cases.
+    # @todo Change checking first integer index to range checking.
     case code_type
     when 2
       true 
