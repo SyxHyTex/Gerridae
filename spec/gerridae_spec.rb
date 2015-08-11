@@ -96,7 +96,7 @@ describe Gerridae do
       end
       
       it 'prevents nil header tags and elements from being written.' do
-	expect(skater.content.all?).to be_truthy
+	expect(skater.content.all?).to eq true
       end
 
     end
@@ -105,22 +105,30 @@ describe Gerridae do
   describe '#form_file' do
     context 'when valid data is passed' do
       before(:each) do
-        skater.uri = 'yahoo.com'
+        skater.uri = 'http://yahoo.com'
       end
 
-      it 'forms appropriate file name' do
+      it 'forms an appropriate file name' do
 	now = Time.now
-	filename = skater.uri.to_s + '_' + (now.to_s[0..9] + '_' + now.to_s[14..18]).to_s
+	filename = skater.uri.to_s + '_' + (now.to_s[0..9] + '_' + now.to_s[11..18]).to_s
+	filename.tr!( '/', '-' )
+	filename.tr!( ' ', '_' )
+
 	skater.form_file
 	expect(skater.file).to eq(filename)
       end
 
-      it 'forms a non-nil file hash' do
+      it 'forms a file data hash' do
+        skater.form_file
         expect(skater.content.empty?).to eq false 
+      end
+
+      it 'creates a non-nil file hash' do
+        skater.form_file
         expect(skater.content.all?).to eq true 
       end
     end
-    context 'when valid data is not passed' do
+    context 'when invalid data is passed' do
       
       it 'rejects nonexistant URI' do
         skater.uri = nil

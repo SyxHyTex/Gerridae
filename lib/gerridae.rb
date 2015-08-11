@@ -86,26 +86,28 @@ class Gerridae
   # @return [String] name of file 
   def form_file
     raise URI::InvalidURIError, 'No URI or invalid URI supplied.' if @uri.nil? || @uri.to_s.length <= 0  
-    # @todo Remove or escape invalid filename chars from filename.
+    raise URI::InvalidURIError, 'Invalid URI supplied.' unless @uri =~ URI::regexp
 
-    # @todo Add directory support
+    # @todo Convert URI implementation to using URI::Generic.build
+    
+    # @todo Remove or escape invalid filename chars from filename.
+    # @todo Add absolute pathing capabilities to fix Rspec test. 
     filename = @uri.to_s + '_' + parse_time 
-    f = File.new(filename, "w+")
-    # method_call_here
-    #Check to see if file already has content.
-    if f.size
-      IO.write( filename, @content, f.size )
-    else
-      IO.write( filename, @content )
-    end
+    filename.tr!( '/', '-' )
+    filename.tr!( ' ', '_' )
     @file = filename 
+
+    f = File.new(__dir__ + '/' +  filename, "a")
+
+    # Write to the file based on whether or not it has information in it. 
+    IO.write( filename, @content ) if File.exist?(__dir__ + filename)
     filename
   end 
 
   # Takes the current time, and returns it in string format, for easier file naming and database logging purposes.
   def parse_time
     now = Time.now
-    cur_time = (now.to_s[0..9] + '_' + now.to_s[14..18]).to_s
+    cur_time = (now.to_s[0..9] + '_' + now.to_s[11..18]).to_s
     cur_time
   end
 
