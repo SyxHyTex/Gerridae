@@ -21,11 +21,13 @@ describe Gerridae do
       end 
 
       it "generates correct IPv4" do
-	skater.ip_generate(4) { should .match %r{^([0-9]{1,3}\.){3}[0-9]{1,3}$} }
+        result = skater.ip_generate(4)
+        expect(result).to match_regex %r{^([0-9]{1,3}\.){3}[0-9]{1,3}$}  
       end
       
       it 'generates correct IPv6' do
-	skater.ip_generate(6) { should .match %r{^([0-9]{1,3}\.){5}[0-9]{1,3}$} }
+        result = skater.ip_generate(6)
+        expect(result).to match_regex %r{^([0-9]{1,3}\.){5}[0-9]{1,3}$} 
       end
     end
   end
@@ -129,15 +131,25 @@ describe Gerridae do
       end
     end
     context 'when invalid data is passed' do
-      
+      before (:each) do
+        skater.uri = 'ksdmaspdj<F10>0Jdsdsapjdpao'
+      end 
       it 'rejects nonexistant URI' do
         skater.uri = nil
         expect{skater.form_file}.to raise_error(URI::InvalidURIError)  
       end        
 
       it 'rejects invalid URI' do
-        skater.uri = 'ksdmaspdj<F10>0Jdsdsapjdpao' 
         expect{skater.form_file}.to raise_error(URI::InvalidURIError)  
+      end        
+      
+      # Bypasses raised errors through rescue nil to test if the method changes parameters.
+      it 'does not form a filename' do
+        expect{ skater.form_file rescue nil }.not_to change(skater, :file) 
+      end        
+
+      it 'does not write a file' do
+        expect{ skater.form_file rescue nil }.not_to change(skater, :file) 
       end        
     end	
   end

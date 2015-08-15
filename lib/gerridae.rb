@@ -1,4 +1,5 @@
 require 'net/http'
+
 require 'uri'
 require 'json'
 
@@ -10,10 +11,9 @@ class Gerridae
     attr_accessor :count
   end
  
-  # Avoids issues with initialization, allows for 
-  NULL_IP = '0.0.0.0'
   # @todo review necessity for security purposes.
   IP_CONCATENATOR = '.'
+  NULL_IP = '0.0.0.0'
 
   attr_accessor :file, :uri, :file, :content 
 
@@ -21,14 +21,14 @@ class Gerridae
   #  
   def initialize
     @file = nil
+
     @has_content = 0 
+    @content = Hash.new
+
     @uri = NULL_IP
 
     self.class.count += 1
-
     # @todo Allow IP version to be changeable based on execution
-
-    @content = Hash.new
   end 
 
   # Randomly seeds an IP address and assigns it to @see Gerridae::uri 
@@ -87,7 +87,7 @@ class Gerridae
   def form_file
     raise URI::InvalidURIError, 'No URI or invalid URI supplied.' if @uri.nil? || @uri.to_s.length <= 0  
     raise URI::InvalidURIError, 'Invalid URI supplied.' unless @uri =~ URI::regexp
-
+    # raise Gerridae::MissingContentError, 'No content available.' if @content.nil? || @content.length?
     # @todo Convert URI implementation to using URI::Generic.build
     
     # @todo Remove or escape invalid filename chars from filename.
@@ -111,9 +111,9 @@ class Gerridae
     cur_time
   end
 
+  # @api private
   # Determines if provided HTML code is good or bad response.
-  # Params:
-  # http_code:: HTTP response code, should be of type int. 
+  # @param [#to_int] HTTP response code 
   def is_good_http_response?(http_code)
     # @todo Remove exceptions, should be handled by ruby ranges during code check.
     raise ArgumentError, "Code cannot be casted to integer type." unless http_code.respond_to? :to_int 

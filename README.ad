@@ -1,13 +1,16 @@
 == Gerridae ==
 
-Gerridae is (soon to be) a basic web crawler, which can be configured to operate independently on a supporting operating system, or integrated into Rails applications.
-
+Gerridae is a basic web crawler, which can be configured to operate on a supported operating system, or integrated into Rails applications.
 
 === Objective ===
 
 Currently, Gerridae is meant to become a basic web crawler that can create and log HTTP requests. Additionally, parsing and analyzing HTML files is planned as a feature.
 
 If you wish to contribute, grab a copy, write it up, and send a pull request. Help is always appreciated! Send me a message here or at my email Schaefer.Austin.P@gmail.com if you have any questions. 
+
+== Installation & Configuration ==
+
+Before the alpha release of the core feature set, this section is to remain blank.
 
 == License & Legal ===
 ==== MIT License ====
