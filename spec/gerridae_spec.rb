@@ -3,6 +3,7 @@ require_relative 'spec_helper'
 describe Gerridae do
   subject(:skater) { Gerridae.new }
 
+  # todo Abstract object initialization tests to shared_spec?
   describe '#initialize' do
     context 'when a Gerridae is created' do
 
@@ -22,12 +23,12 @@ describe Gerridae do
 
       it "generates correct IPv4" do
         result = skater.ip_generate(4)
-        expect(result).to match_regex %r{^([0-9]{1,3}\.){3}[0-9]{1,3}$}  
+        expect(result).to match_regex %r{^([0-9]{1,3}\.){3}[0-9]{1,3}$}
       end
       
       it 'generates correct IPv6' do
         result = skater.ip_generate(6)
-        expect(result).to match_regex %r{^([0-9]{1,3}\.){5}[0-9]{1,3}$} 
+        expect(result).to match_regex %r{^([0-9]{1,3}\.){5}[0-9]{1,3}$}
       end
     end
   end
@@ -86,7 +87,7 @@ describe Gerridae do
       before(:each)  { @uri = "http://www.google.com"  }
 
       it 'expands content array by 1 or more' do
-	expect { skater.probe(@uri) }.to change{ skater.content.size }.by( a_value > 0)
+	expect { skater.probe(@uri) }.to change{ skater.content.size }.by(a_value > 0)
       end
 
     end
@@ -107,7 +108,7 @@ describe Gerridae do
   describe '#form_file' do
     context 'when valid data is passed' do
       before(:each) do
-        skater.uri = 'http://yahoo.com'
+        @uri = 'http://google.com'
       end
 
       it 'forms an appropriate file name' do
@@ -116,17 +117,19 @@ describe Gerridae do
 	filename.tr!( '/', '-' )
 	filename.tr!( ' ', '_' )
 
-	skater.form_file
 	expect(skater.file).to eq(filename)
+      end
+    end
+    context 'when valid content exists' do
+      before do
+        # todo set valid content hash, based on real query 
       end
 
       it 'forms a file data hash' do
-        skater.form_file
         expect(skater.content.empty?).to eq false 
       end
 
-      it 'creates a non-nil file hash' do
-        skater.form_file
+      it 'creates a non nil file hash' do
         expect(skater.content.all?).to eq true 
       end
     end

@@ -49,19 +49,19 @@ class Gerridae
   # checks to see if the randomly generated IP is linked to a valid web domain. 
   # @param url [String] the url / IP address to visit
   def probe(url)
-  # @todo Create args options Hash to dynamically configure settings on the fly.
+  # @todo Create args options Hash to dynamically configure settings.
     raise ArgumentError.new, "Incorrect number of arguments: expected 1." if url.nil? 
 
     # Associate argument with @uri element tag for future logging purposes.
     #   Will also serve for faster clash checking (aka w/o DBMS)
-    @uri = URI(url)
+    url = URI.parse(url)
 
     #Create NET::HTTP request to the specified IP
-    http = Net::HTTP.new(@uri.host, @uri.port)
+    http = Net::HTTP.new(url.host, url.port)
     http.open_timeout = 3
     http.read_timeout = 3
       
-    request = Net::HTTP::Get.new(@uri)
+    request = Net::HTTP::Get.new(url)
     request['User-Agent'] = "Gerridae Gem"
     request['Accept'] = "*/*"
 
@@ -79,19 +79,19 @@ class Gerridae
       end
     end
 
-    # @todo Add IP and URL to database once established.
   end
   
   # Converts hash (soon JSON file) into human-readable txt file.
   # @return [String] name of file 
   def form_file
     raise URI::InvalidURIError, 'No URI or invalid URI supplied.' if @uri.nil? || @uri.to_s.length <= 0  
-    raise URI::InvalidURIError, 'Invalid URI supplied.' unless @uri =~ URI::regexp
+    # todo
+    raise URI::InvalidURIError, 'Invalid URI supplied.' unless @uri.kind_of? URI::HTTP or @uri.kind_of? URI::HTTPS
+
     # raise Gerridae::MissingContentError, 'No content available.' if @content.nil? || @content.length?
     # @todo Convert URI implementation to using URI::Generic.build
     
-    # @todo Remove or escape invalid filename chars from filename.
-    # @todo Add absolute pathing capabilities to fix Rspec test. 
+    # @todo Remove or escape invalid filename chars from filename. Abstract out to own method?
     filename = @uri.to_s + '_' + parse_time 
     filename.tr!( '/', '-' )
     filename.tr!( ' ', '_' )
@@ -99,12 +99,12 @@ class Gerridae
 
     f = File.new(__dir__ + '/' +  filename, "a")
 
-    # Write to the file based on whether or not it has information in it. 
     IO.write( filename, @content ) if File.exist?(__dir__ + filename)
     filename
   end 
 
   # Takes the current time, and returns it in string format, for easier file naming and database logging purposes.
+  # @return [String] the current time in file name friendly format.
   def parse_time
     now = Time.now
     cur_time = (now.to_s[0..9] + '_' + now.to_s[11..18]).to_s
