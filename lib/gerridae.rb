@@ -1,10 +1,14 @@
 require 'net/http'
-
 require 'uri'
 require 'json'
 
+# May need to sort this into its own file, if the number of included 
+#   modules grows too large.
+require_relative  'mod/helpers'
+
 # @author Austin Schaefer <Schaefer.Austin.P@gmail.com>
 class Gerridae
+  extend Helpers 
 
   @count = 0
   class << self
@@ -15,7 +19,7 @@ class Gerridae
   IP_CONCATENATOR = '.'
   NULL_IP = '0.0.0.0'
 
-  attr_accessor :file, :uri, :file, :content 
+  attr_accessor :uri, :file, :content, :has_content
 
   # Initialized Gerridae object with major parameters set to 0 or nil values.
   #  
@@ -70,12 +74,14 @@ class Gerridae
     code = response.code.to_s 
     @content[:return_code] = code
 
+
+    # todo Abstract to own method?
     if is_good_http_response? code.to_i  
       @content[:http_version] = response.http_version
       @content[:message] = response.message
       # @todo Use JSON parsing method here
       response.each do |key, value|
-	@content[key.to_sym] = value unless key.nil? && value.nil? 
+        @content[key.to_sym] = value unless key.nil? && value.nil? 
       end
     end
 
@@ -85,14 +91,13 @@ class Gerridae
   # @return [String] name of file 
   def form_file
     raise URI::InvalidURIError, 'No URI or invalid URI supplied.' if @uri.nil? || @uri.to_s.length <= 0  
-    # todo
-    raise URI::InvalidURIError, 'Invalid URI supplied.' unless @uri.kind_of? URI::HTTP or @uri.kind_of? URI::HTTPS
+    raise URI::InvalidURIError, "Invalid URI: #{@uri} supplied." unless @uri.kind_of? URI::HTTP or @uri.kind_of? URI::HTTPS
 
     # raise Gerridae::MissingContentError, 'No content available.' if @content.nil? || @content.length?
     # @todo Convert URI implementation to using URI::Generic.build
     
-    # @todo Remove or escape invalid filename chars from filename. Abstract out to own method?
-    filename = @uri.to_s + '_' + parse_time 
+    # @todo call helper module filename method here 
+    filename = uri.to_s + '_' + parse_time 
     filename.tr!( '/', '-' )
     filename.tr!( ' ', '_' )
     @file = filename 
@@ -103,7 +108,7 @@ class Gerridae
     filename
   end 
 
-  # Takes the current time, and returns it in string format, for easier file naming and database logging purposes.
+  # Logs current time and string manipulates it into UNIX file friendly format. 
   # @return [String] the current time in file name friendly format.
   def parse_time
     now = Time.now

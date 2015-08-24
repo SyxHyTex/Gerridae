@@ -1,6 +1,7 @@
 require_relative 'spec_helper'
 
 describe Gerridae do
+  extend Helpers
   subject(:skater) { Gerridae.new }
 
   # todo Abstract object initialization tests to shared_spec?
@@ -18,7 +19,7 @@ describe Gerridae do
     context "when IP generation occurs" do
 
       it 'prevents non IPv4/6 generation' do
-	expect { skater.ip_generate(5) }.to raise_error ArgumentError
+        expect { skater.ip_generate(5) }.to raise_error ArgumentError
       end 
 
       it "generates correct IPv4" do
@@ -37,7 +38,7 @@ describe Gerridae do
     context 'when time is generated' do
 
       it 'generates time as a string' do
-	skater.parse_time {should be_an_instance_of String }
+        skater.parse_time {should be_an_instance_of String }
       end
     end
   end
@@ -46,21 +47,21 @@ describe Gerridae do
     context 'when HTTP code is supplied' do
       
       it 'denies invalid HTTP codes' do
-	expect { skater.is_good_http_response?(662) }.to raise_error RangeError 
-	expect { skater.is_good_http_response?(:purple) }.to raise_error ArgumentError 
+        expect { skater.is_good_http_response?(662) }.to raise_error RangeError 
+        expect { skater.is_good_http_response?(:purple) }.to raise_error ArgumentError 
       end
     end 
   
     context 'when HTTP code is tested' do
 
       it 'reports failed HTTP codes' do
-	expect(skater.is_good_http_response?(504)).to be false
+	      expect(skater.is_good_http_response?(504)).to be false
       end 
 
       it 'recognizes valid HTTP codes' do
-	(200..208).each do |code|
-	  expect ( skater.is_good_http_response?(code) )
-	end
+	      (200..208).each do |code|
+	        expect ( skater.is_good_http_response?(code) )
+	      end
       end
     end
   end
@@ -70,7 +71,7 @@ describe Gerridae do
       before('rejects_non-URI_objects') { @uri = "invalid uri" }
       
       it 'rejects non-URI objects' do
-	expect { skater.probe(@uri) }.to raise_error URI::InvalidURIError 
+      	expect { skater.probe(@uri) }.to raise_error URI::InvalidURIError 
       end
     end
 
@@ -78,7 +79,7 @@ describe Gerridae do
       before(:each) { @uri = nil }
 
       it 'rejects lack of URI' do
-	expect { skater.probe(@uri) }.to raise_error ArgumentError
+	      expect { skater.probe(@uri) }.to raise_error ArgumentError
       end
 
     end  
@@ -87,46 +88,43 @@ describe Gerridae do
       before(:each)  { @uri = "http://www.google.com"  }
 
       it 'expands content array by 1 or more' do
-	expect { skater.probe(@uri) }.to change{ skater.content.size }.by(a_value > 0)
+        expect { skater.probe(@uri) }.to change{ skater.content.size }.by(a_value > 0)
       end
-
     end
 
     context 'when valid response is passed' do
       before(:each) do
        	@uri = "http://yahoo.com"
-	skater.probe(@uri)
+        skater.probe(@uri)
       end
       
       it 'prevents nil header tags and elements from being written.' do
-	expect(skater.content.all?).to eq true
+        expect(skater.content.all?).to eq true
       end
-
     end
   end
 
   describe '#form_file' do
     context 'when valid data is passed' do
       before(:each) do
-        @uri = 'http://google.com'
+        skater.uri = URI.parse('http://www.google.com')
+        skater.form_file
       end
 
       it 'forms an appropriate file name' do
-	now = Time.now
-	filename = skater.uri.to_s + '_' + (now.to_s[0..9] + '_' + now.to_s[11..18]).to_s
-	filename.tr!( '/', '-' )
-	filename.tr!( ' ', '_' )
-
-	expect(skater.file).to eq(filename)
+        filename = Gerridae::create_filename(skater.uri)
+        expect(skater.file).to eq(filename)
       end
     end
     context 'when valid content exists' do
       before do
-        # todo set valid content hash, based on real query 
+        skater.uri = URI.parse('http://www.google.com')
+        filename = Gerridae::create_filename(skater.uri)
+        skater.form_file
       end
 
-      it 'forms a file data hash' do
-        expect(skater.content.empty?).to eq false 
+      it 'forms a file data hash' do 
+        expect(skater.content.size).not_to eq 0
       end
 
       it 'creates a non nil file hash' do
@@ -150,7 +148,7 @@ describe Gerridae do
       it 'does not form a filename' do
         expect{ skater.form_file rescue nil }.not_to change(skater, :file) 
       end        
-
+      # todo 
       it 'does not write a file' do
         expect{ skater.form_file rescue nil }.not_to change(skater, :file) 
       end        

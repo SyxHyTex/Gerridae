@@ -1,5 +1,5 @@
 require 'rspec/expectations'
-require 'spec_helper'
+require 'spec_config'
 
 RSpec::Matchers.define :match_regex do |expected|
   match do |actual|
