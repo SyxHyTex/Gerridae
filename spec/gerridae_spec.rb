@@ -48,6 +48,10 @@ describe Gerridae do
       
       it 'denies invalid HTTP codes' do
         expect { skater.is_good_http_response?(662) }.to raise_error RangeError 
+      end
+
+      it 'denies non-integer HTTP codes' do
+        #todo implement aggregate failure test here?
         expect { skater.is_good_http_response?(:purple) }.to raise_error ArgumentError 
       end
     end 
@@ -106,24 +110,25 @@ describe Gerridae do
 
   describe '#form_file' do
     context 'when valid data is passed' do
-      before(:each) do
+      before do
         skater.uri = URI.parse('http://www.google.com')
-        skater.form_file
+        skater.file = skater.form_file
       end
 
       it 'forms an appropriate file name' do
-        filename = Gerridae::create_filename(skater.uri)
+        filename = Helpers::create_filename(skater.uri)
         expect(skater.file).to eq(filename)
       end
     end
     context 'when valid content exists' do
-      before do
+      before(:each) do
         skater.uri = URI.parse('http://www.google.com')
-        filename = Gerridae::create_filename(skater.uri)
+        filename = Helpers::create_filename(skater.uri)
         skater.form_file
       end
 
       it 'forms a file data hash' do 
+        skater.probe('http://www.google.com')
         expect(skater.content.size).not_to eq 0
       end
 

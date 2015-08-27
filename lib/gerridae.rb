@@ -96,24 +96,21 @@ class Gerridae
     # raise Gerridae::MissingContentError, 'No content available.' if @content.nil? || @content.length?
     # @todo Convert URI implementation to using URI::Generic.build
     
-    # @todo call helper module filename method here 
-    filename = uri.to_s + '_' + parse_time 
-    filename.tr!( '/', '-' )
-    filename.tr!( ' ', '_' )
-    @file = filename 
+    filename = Helpers.create_filename(@uri)
 
     f = File.new(__dir__ + '/' +  filename, "a")
 
+    #todo Encapsulate within try rescue block.
     IO.write( filename, @content ) if File.exist?(__dir__ + filename)
+    #todo Return nil if file write fails?
     filename
   end 
 
   # Logs current time and string manipulates it into UNIX file friendly format. 
   # @return [String] the current time in file name friendly format.
   def parse_time
-    now = Time.now
-    cur_time = (now.to_s[0..9] + '_' + now.to_s[11..18]).to_s
-    cur_time
+    cur_time = Time.now.to_s[0..9] + '_' + Time.now.to_s[11..18]
+    cur_time.to_s
   end
 
   # @api private

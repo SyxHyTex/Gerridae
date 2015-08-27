@@ -11,4 +11,6 @@ module Helpers
 
     filename
   end
+  
+  module_function :create_filename
 end
