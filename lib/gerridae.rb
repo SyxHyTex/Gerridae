@@ -6,7 +6,7 @@ require 'json'
 #   modules grows too large.
 require_relative  'mod/helpers'
 
-# @author Austin Schaefer <Schaefer.Austin.P@gmail.com>
+# @author Austin Schaefer <Schaefer.Austin.P@tutanota.com>
 class Gerridae
   extend Helpers 
 
@@ -24,9 +24,7 @@ class Gerridae
   # Initialized Gerridae object with major parameters set to 0 or nil values.
   #  
   def initialize
-    @file = nil
-
-    @has_content = 0 
+    @file = ''
     @content = Hash.new
 
     @uri = NULL_IP
@@ -35,12 +33,14 @@ class Gerridae
     # @todo Allow IP version to be changeable based on execution
   end 
 
+  #todo Move to Helpers module
   # Randomly seeds an IP address and assigns it to @see Gerridae::uri 
   # @param ip_v_num [Integer] The version of IP (4 or 6) to construct.
   def ip_generate(ip_v_num)
-    address = ''
     raise ArgumentError, "IP version is not an integer" unless ip_v_num.is_a? Integer
     raise ArgumentError, "IP Version is not 4 or 6." unless ip_v_num == 4 || ip_v_num == 6
+
+    address = ''
 
     ip_v_num.times do 
       address += rand(1..255).to_s 
@@ -59,35 +59,37 @@ class Gerridae
     # Associate argument with @uri element tag for future logging purposes.
     #   Will also serve for faster clash checking (aka w/o DBMS)
     url = URI.parse(url)
+    @uri = url
 
     #Create NET::HTTP request to the specified IP
     http = Net::HTTP.new(url.host, url.port)
-    http.open_timeout = 3
-    http.read_timeout = 3
+    http.read_timeout, http.open_timeout = 3
       
     request = Net::HTTP::Get.new(url)
     request['User-Agent'] = "Gerridae Gem"
     request['Accept'] = "*/*"
-
+ 
     # Gather response, switch code to string, add it to content hash.
     response = http.request(request)
     code = response.code.to_s 
     @content[:return_code] = code
 
 
-    # todo Abstract to own method?
+    # todo Abstract to own method within Helpers module.
     if is_good_http_response? code.to_i  
-      @content[:http_version] = response.http_version
-      @content[:message] = response.message
+      @content = { :http_version => response.http_version, :message => response.message }
+
       # @todo Use JSON parsing method here
       response.each do |key, value|
         @content[key.to_sym] = value unless key.nil? && value.nil? 
       end
+      #todo Return HTTP code to indicate success.
     end
+    #todo Return nil or other failure indicator for failure.
 
   end
   
-  # Converts hash (soon JSON file) into human-readable txt file.
+  # Converts content hash (soon JSON file) into human-readable txt file.
   # @return [String] name of file 
   def form_file
     raise URI::InvalidURIError, 'No URI or invalid URI supplied.' if @uri.nil? || @uri.to_s.length <= 0  
@@ -95,14 +97,31 @@ class Gerridae
 
     # raise Gerridae::MissingContentError, 'No content available.' if @content.nil? || @content.length?
     # @todo Convert URI implementation to using URI::Generic.build
-    
+
     filename = Helpers.create_filename(@uri)
+    outfile = File.expand_path( "../../out/" + filename, __FILE__ )
+    @file = filename
+p @file
+    # Ensures there are no files created with precisely the same tags.
+    # @todo Move to helper module?
+    dupcount = 0
+    loop do 
+      dupcount += 1
+    break unless File.exist?(outfile + dupcount.to_s)  
+    end
 
-    f = File.new(__dir__ + '/' +  filename, "a")
+    outfile = outfile + dupcount.to_s if dupcount > 0
+    # @todo end of add to helper method
 
-    #todo Encapsulate within try rescue block.
-    IO.write( filename, @content ) if File.exist?(__dir__ + filename)
-    #todo Return nil if file write fails?
+    File.new(outfile, "a") 
+
+    File.open(outfile, "w") do |file|
+      file.write @content
+    end
+
+    
+    # @todo Encapsulate within try rescue block.
+    # @todo Return nil if file write fails?
     filename
   end 
 
@@ -113,7 +132,6 @@ class Gerridae
     cur_time.to_s
   end
 
-  # @api private
   # Determines if provided HTML code is good or bad response.
   # @param [#to_int] HTTP response code 
   def is_good_http_response?(http_code)

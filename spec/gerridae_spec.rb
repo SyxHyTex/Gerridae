@@ -109,27 +109,25 @@ describe Gerridae do
   end
 
   describe '#form_file' do
-    context 'when valid data is passed' do
-      before do
-        skater.uri = URI.parse('http://www.google.com')
-        skater.file = skater.form_file
-      end
-
-      it 'forms an appropriate file name' do
-        filename = Helpers::create_filename(skater.uri)
-        expect(skater.file).to eq(filename)
-      end
-    end
     context 'when valid content exists' do
+      let(:filename) { Helpers::create_filename(skater.uri)  }
+
       before(:each) do
-        skater.uri = URI.parse('http://www.google.com')
-        filename = Helpers::create_filename(skater.uri)
-        skater.form_file
+        skater.probe('http://www.google.com')
       end
 
-      it 'forms a file data hash' do 
-        skater.probe('http://www.google.com')
-        expect(skater.content.size).not_to eq 0
+      it 'alters @file object state' do
+        skater.form_file
+        expect(skater).to have_attributes(:file => filename) 
+      end
+
+      it 'returns an appropriate file name' do
+        skater.form_file
+        expect( skater.file ).to eq filename
+      end
+
+      it 'successfully writes to file' do 
+        expect{ skater.form_file }.to change{ skater.file.size }.by(a_value > 0)
       end
 
       it 'creates a non nil file hash' do
