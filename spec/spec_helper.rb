@@ -8,4 +8,8 @@ RSpec.configure do |config|
 
   config.color = true
   config.order = 'random'
+
+  config.expect_with :rspec do |c|
+    c.syntax = :expect
+  end
 end

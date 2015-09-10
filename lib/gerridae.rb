@@ -16,7 +16,6 @@ class Gerridae
   end
  
   # @todo review necessity for security purposes.
-  IP_CONCATENATOR = '.'
   NULL_IP = '0.0.0.0'
 
   attr_accessor :uri, :file, :content, :has_content
@@ -32,23 +31,6 @@ class Gerridae
     self.class.count += 1
     # @todo Allow IP version to be changeable based on execution
   end 
-
-  #todo Move to Helpers module
-  # Randomly seeds an IP address and assigns it to @see Gerridae::uri 
-  # @param ip_v_num [Integer] The version of IP (4 or 6) to construct.
-  def ip_generate(ip_v_num)
-    raise ArgumentError, "IP version is not an integer" unless ip_v_num.is_a? Integer
-    raise ArgumentError, "IP Version is not 4 or 6." unless ip_v_num == 4 || ip_v_num == 6
-
-    address = ''
-
-    ip_v_num.times do 
-      address += rand(1..255).to_s 
-      address += IP_CONCATENATOR unless address.count(IP_CONCATENATOR) == (ip_v_num - 1)
-    end
- 
-    @uri = address
-  end
 
   # checks to see if the randomly generated IP is linked to a valid web domain. 
   # @param url [String] the url / IP address to visit
@@ -76,7 +58,7 @@ class Gerridae
 
 
     # todo Abstract to own method within Helpers module.
-    if is_good_http_response? code.to_i  
+    if Helpers::is_good_http_response? code.to_i  
       @content = { :http_version => response.http_version, :message => response.message }
 
       # @todo Use JSON parsing method here
@@ -101,7 +83,7 @@ class Gerridae
     filename = Helpers.create_filename(@uri)
     outfile = File.expand_path( "../../out/" + filename, __FILE__ )
     @file = filename
-p @file
+
     # Ensures there are no files created with precisely the same tags.
     # @todo Move to helper module?
     dupcount = 0
@@ -124,34 +106,5 @@ p @file
     # @todo Return nil if file write fails?
     filename
   end 
-
-  # Logs current time and string manipulates it into UNIX file friendly format. 
-  # @return [String] the current time in file name friendly format.
-  def parse_time
-    cur_time = Time.now.to_s[0..9] + '_' + Time.now.to_s[11..18]
-    cur_time.to_s
-  end
-
-  # Determines if provided HTML code is good or bad response.
-  # @param [#to_int] HTTP response code 
-  def is_good_http_response?(http_code)
-    # @todo Remove exceptions, should be handled by ruby ranges during code check.
-    raise ArgumentError, "Code cannot be casted to integer type." unless http_code.respond_to? :to_int 
-    raise RangeError.new "Supplied code is not in valid HTTP code index." unless http_code.between? 100, 599
-
-    code_type = (http_code / 100).floor
-
-    # @todo Define specific code subcases within code_type cases.
-    # @todo Change checking first integer index to range checking.
-    case code_type
-    when 2
-      true 
-    when 1, 3..5
-      false
-    else
-      false
-    end
-
-  end
 
 end
