@@ -25,7 +25,7 @@ describe Helpers do
     end
 
     context "when IP version 4 is given" do
-      let(:result) { Helpers::ip_generate(4)  }
+      let(:result) { Helpers::ip_generate(4) }
 
       it "generates correctly formatted IP" do
         expect(result).to match_regex %r{^([0-9]{1,3}\.){3}[0-9]{1,3}$}
@@ -33,7 +33,7 @@ describe Helpers do
     end
     
     context "when IP version 6 is given" do
-      let(:result) { Helpers::ip_generate(6)  }
+      let(:result) { Helpers::ip_generate(6) }
 
       it "generates correctly formatted IP" do
         expect(result).to match_regex %r{^([0-9]{1,3}\.){5}[0-9]{1,3}$}
@@ -44,7 +44,7 @@ describe Helpers do
 
   describe '#parse_time' do
     context 'when time is generated' do
-      let(:the_given_time) { Helpers::parse_time  }
+      let(:the_given_time) { Helpers::parse_time }
 
       it 'generates time as a string' do
         expect(the_given_time).to be_a String
@@ -71,6 +71,25 @@ describe Helpers do
 	      (200..208).each do |code|
 	        expect(Helpers::is_good_http_response?(code) ).to be true
 	      end
+      end
+    end
+  end
+
+  describe '#rename_duplicate' do
+    context "when valid input is supplied" do
+      let(:filename) { "http://www.yahoo.com" }
+      subject(:renamed) { Helpers::rename_duplicate(filename)  }
+
+      it "adds file number to filename" do
+        expect(filename).not_to eq(renamed)
+      end
+    end
+
+    context "when non-string file name given" do
+      let(:filename) { Hash.new( 1 => "the", 2 => "mg") }
+
+      it "raises exception" do
+        expect{ Helpers::rename_duplicate(filename) }.to raise_error TypeError
       end
     end
   end

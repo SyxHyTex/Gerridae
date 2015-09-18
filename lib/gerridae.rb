@@ -85,7 +85,7 @@ class Gerridae
     @file = filename
 
     # Ensures there are no files created with precisely the same tags.
-    # @todo Move to helper module?
+    # Helpers.rename_duplicate(parameter)
     dupcount = 0
     loop do 
       dupcount += 1
@@ -93,7 +93,6 @@ class Gerridae
     end
 
     outfile = outfile + dupcount.to_s if dupcount > 0
-    # @todo end of add to helper method
 
     File.new(outfile, "a") 
 
@@ -106,5 +105,5 @@ class Gerridae
     # @todo Return nil if file write fails?
     filename
   end 
-
+  
 end

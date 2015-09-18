@@ -59,6 +59,21 @@ module Helpers
     end
 
   end
+  
+  # Appends the first number not taken by files identically named to passed file name.
+  # @param: [String] the file name to be made unique.
+  # @return [String] unique file name
+  def rename_duplicate(filename)
+    outfile = File.expand_path( "../../out/" + filename, __FILE__ )
+    dupcount = 0
+    loop do 
+      dupcount += 1
+    break unless File.exist?(filename + dupcount.to_s)  
+    end
 
-  module_function :create_filename, :ip_generate, :parse_time, :is_good_http_response?
+    outfile = outfile + dupcount.to_s if dupcount > 0
+    outfile
+  end
+
+  module_function :create_filename, :ip_generate, :parse_time, :is_good_http_response?, :rename_duplicate
 end
